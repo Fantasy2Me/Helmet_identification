@@ -18,3 +18,7 @@
 /test_res/*.jpg
 /执行步骤.txt
 
+*.pyc
+data/darknet_weights/yolov3.ckpt.index
+data/darknet_weights/checkpoint
+detection_result.jpg
