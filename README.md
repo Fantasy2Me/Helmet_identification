@@ -3,13 +3,13 @@
 将 [darknet_weights.zip](https://wss3.cn/f/1izirb0ystj) 解压放到`.data/`后，可以尝试运行：
 
 ```shell
-python3 test_single_image.py domo_img/1.jpg
+python test_single_image.py domo_img/1.jpg
 
-python3 test_single_image.py domo_img/2.jpg
+python test_single_image.py domo_img/2.jpg
 
-python3 test_single_image.py domo_img/3.jpg
+python test_single_image.py domo_img/3.jpg
 
-python3 test_single_image.py domo_img/4.jpg
+python test_single_image.py domo_img/4.jpg
 ```
 
 ## Tensorflow 实现YOLO V3检测安全帽佩戴
