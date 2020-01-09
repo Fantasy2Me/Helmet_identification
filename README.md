@@ -9,7 +9,6 @@ python test_single_image.py domo_img/2.jpg
 
 python test_single_image.py domo_img/3.jpg
 
-python test_single_image.py domo_img/4.jpg
 ```
 
 ## Tensorflow 实现YOLO V3检测安全帽佩戴
