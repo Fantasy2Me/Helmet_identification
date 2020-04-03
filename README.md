@@ -8,8 +8,17 @@ python test_single_image.py domo_img/1.jpg
 python test_single_image.py domo_img/2.jpg
 
 python test_single_image.py domo_img/3.jpg
-
 ```
+
+>  检测图片完成
+
+执行下方命令，访问`http://127.0.0.1:5000/`即可
+
+```cmd
+python Helmet_identification.py
+```
+
+
 
 ## Tensorflow 实现YOLO V3检测安全帽佩戴
 

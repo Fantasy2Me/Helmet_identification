@@ -12,6 +12,10 @@
 /data/myData/JPEGImages/*.jpg
 /data/myData/label/*.txt
 
+data/my_data/ImageSets/Main/*.txt
+data/my_data/JPEGImages/*.jpg
+data/my_data/Annotations/*.xml
+
 /data/test_image/*.jpg
 /data/test_video/*
 /data/*.log
@@ -22,3 +26,5 @@
 data/darknet_weights/yolov3.ckpt.index
 data/darknet_weights/checkpoint
 detection_result.jpg
+
+.vscode/

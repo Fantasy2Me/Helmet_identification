@@ -15,7 +15,7 @@ from utils.data_aug import letterbox_resize
 from model import yolov3
 
 parser = argparse.ArgumentParser(description="YOLO-V3 test single image test procedure.")
-parser.add_argument("input_image", type=str,
+parser.add_argument("--input_image", type=str,default="./domo_img/2.jpg",
                     help="The path of the input image.")
 parser.add_argument("--anchor_path", type=str, default="./data/yolo_anchors.txt",
                     help="The path of the anchor txt file.")
@@ -78,9 +78,10 @@ with tf.Session() as sess:
     print("labels:")
     print(labels_)
 
+    print(len(labels_))
     for i in range(len(boxes_)):
         x0, y0, x1, y1 = boxes_[i]
         plot_one_box(img_ori, [x0, y0, x1, y1], label=args.classes[labels_[i]] + ', {:.2f}%'.format(scores_[i] * 100), color=color_table[labels_[i]])
-    cv2.imshow('Detection result', img_ori)
+    #cv2.imshow('Detection result', img_ori)
     cv2.imwrite('detection_result.jpg', img_ori)
-    cv2.waitKey(0)
+    #cv2.waitKey(0)
