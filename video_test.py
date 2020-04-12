@@ -38,15 +38,20 @@ args.num_class = len(args.classes)
 
 color_table = get_color_table(args.num_class)
 
+# VideoCapture()中参数是0，表示打开笔记本的内置摄像头，参数是视频文件路径则打开视频
 vid = cv2.VideoCapture(args.input_video)
+# get(7)视频文件中的帧数https://blog.csdn.net/qq_36387683/article/details/83652752
 video_frame_cnt = int(vid.get(7))
 video_width = int(vid.get(3))
 video_height = int(vid.get(4))
-video_fps = int(vid.get(5))
+video_fps = int(vid.get(5))  # get(5)帧速率
 
 if args.save_video:
+    # MPEG-4编码,VideoWriter_fourcc为视频编解码器
     fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-    videoWriter = cv2.VideoWriter('video_result.mp4', fourcc, video_fps, (video_width, video_height))
+    # 创建视频流写入对象
+    videoWriter = cv2.VideoWriter(
+        'video_result.mp4', fourcc, video_fps, (video_width, video_height))
 
 with tf.Session() as sess:
     input_data = tf.placeholder(tf.float32, [1, args.new_size[1], args.new_size[0], 3], name='input_data')
@@ -58,12 +63,16 @@ with tf.Session() as sess:
     pred_scores = pred_confs * pred_probs
 
     boxes, scores, labels = gpu_nms(pred_boxes, pred_scores, args.num_class, max_boxes=200, score_thresh=0.3, nms_thresh=0.45)
+    
+    saver = tf.train.Saver()  # 实例化一个Saver对象
+    saver.restore(sess, args.restore_path)  # 重载模型参数，用于训练或者测试数据
 
-    saver = tf.train.Saver()
-    saver.restore(sess, args.restore_path)
-
+    # 对视频文件中每一帧进行处理
     for i in range(video_frame_cnt):
+        # vid.read()按帧读取视频，ret是布尔值，如果读取帧是正确的则返回True，如果文件读取到结尾，
+        # 它的返回值就为False。img_ori就是每一帧的图像，是个三维矩阵.
         ret, img_ori = vid.read()
+        # resize调整大小
         if args.letterbox_resize:
             img, resize_ratio, dw, dh = letterbox_resize(img_ori, args.new_size[0], args.new_size[1])
         else:
@@ -72,31 +81,40 @@ with tf.Session() as sess:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = np.asarray(img, np.float32)
         img = img[np.newaxis, :] / 255.
-
+        
         start_time = time.time()
-        boxes_, scores_, labels_ = sess.run([boxes, scores, labels], feed_dict={input_data: img})
+        if i % 3 == 0:
+            boxes_, scores_, labels_ = sess.run(
+                [boxes, scores, labels], feed_dict={input_data: img})
         end_time = time.time()
 
         # rescale the coordinates to the original image
-        if args.letterbox_resize:
-            boxes_[:, [0, 2]] = (boxes_[:, [0, 2]] - dw) / resize_ratio
-            boxes_[:, [1, 3]] = (boxes_[:, [1, 3]] - dh) / resize_ratio
-        else:
-            boxes_[:, [0, 2]] *= (width_ori/float(args.new_size[0]))
-            boxes_[:, [1, 3]] *= (height_ori/float(args.new_size[1]))
+        if i % 3 == 0:
+            if args.letterbox_resize:
+                boxes_[:, [0, 2]] = (boxes_[:, [0, 2]] - dw) / resize_ratio
+                boxes_[:, [1, 3]] = (boxes_[:, [1, 3]] - dh) / resize_ratio
+            else:
+                boxes_[:, [0, 2]] *= (width_ori/float(args.new_size[0]))
+                boxes_[:, [1, 3]] *= (height_ori/float(args.new_size[1]))
 
 
         for i in range(len(boxes_)):
             x0, y0, x1, y1 = boxes_[i]
             plot_one_box(img_ori, [x0, y0, x1, y1], label=args.classes[labels_[i]] + ', {:.2f}%'.format(scores_[i] * 100), color=color_table[labels_[i]])
+        # 显示文本（参数有图像，文字内容， 坐标 ，字体，大小，颜色，字体厚度）
         cv2.putText(img_ori, '{:.2f}ms'.format((end_time - start_time) * 1000), (40, 40), 0,
                     fontScale=1, color=(0, 255, 0), thickness=2)
+        # 显示图片
         cv2.imshow('image', img_ori)
         if args.save_video:
-            videoWriter.write(img_ori)
+            videoWriter.write(img_ori)  # 向视频文件写入一帧
+        
+        #waitKey（）方法本身表示等待键盘输入，参数是1，表示延时1ms切换到下一帧图像，对于视频而言；
+        #参数为0,如cv2.waitKey(0)只显示当前帧图像,相当于视频暂停;
+        #参数过大如cv2.waitKey(1000),会因为延时过久而卡顿感觉到卡顿.
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-    vid.release()
+    vid.release()  # 调用release()释放摄像头，调用destroyAllWindows()关闭所有图像窗口
     if args.save_video:
-        videoWriter.release()
+        videoWriter.release()  

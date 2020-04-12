@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>视频检测</title>
+</head>
+<body onshow="showimg()">
+    <h1>视频</h1>
+    
+    <div style="text-align: center;">
+        <img style="width: auto;" id="imgm">
+    </div>
+    
+</body>
+<script>
+    var num=1;
+    var filename="{{videoname}}";
+    var imgfilepath="static/uploads/aftervideo/"+filename+"/"+num.toString()+".jpg";
+    var interval = setInterval(function(){
+        if(isHasImg(imgfilepath)){    
+            document.getElementById("imgm").src=imgfilepath;
+            num+=1;
+            imgfilepath="static/uploads/aftervideo/"+filename+"/"+num.toString()+".jpg";
+        }
+    }, 2000);
+    
+    function isHasImg(pathImg){
+        var ImgObj=new Image();
+        ImgObj.src= pathImg;
+        if(ImgObj.fileSize > 0 || (ImgObj.width > 0 && ImgObj.height > 0)){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+</html>
